@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./cryptocurrency.css">
+    <title>Xcryptocurrency</title>
+    <link rel="icon" type="image/x-icon" href="./images/bitcoin.png">
+</head>
+<body>
+    <header>
+        <nav>
+            <img src="./images/bitcoin.png" class="a1">
+            <span class="a2">Xcryptocurrency</span>
+            <a href="./cryptocurrencyhome.html" class="a3">Home</a>
+            <a href="./cryptocurrencycoins.html" class="a4">Coins</a>
+        </nav>
+    </header>
+    <button class="back_button" onclick="history.back()">Back</button>
+    <div id="coin-info-container"></div>
+    <footer style="top: 0px;">
+        <h3 class="footer-content"><u>About Us</u></h3>   
+        <p class="footer-content">We are the best crypto trading service provider in India, we provide our guidance at a very reasonable price.</p>
+        <p class="footer-content">© 2024 xcryptocurrency, Inc. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const coinDetailsContainer = document.getElementById("coin-info-container");
+            let coinDetails = window.localStorage.getItem("coinDetails");
+
+            try {
+                coinDetails = JSON.parse(coinDetails);
+            } catch (error) {
+                console.error("Failed to parse coinDetails:", error);
+                coinDetailsContainer.textContent = "Failed to parse coin details.";
+                return;
+            }
+
+            if (coinDetails) {
+                const currentPriceColor = coinDetails.current_price >= coinDetails.high_24h ? 'green' : 'red';
+
+                coinDetailsContainer.innerHTML = `
+                    <div class="coin-info-container">
+                        <center>
+                        <img src="${coinDetails.image}" alt="${coinDetails.name}">
+                        <h1>${coinDetails.name}</h1>
+                        </center>
+                        <br></br>
+                        <p><b>Current Price:</b> $<span style="color: ${currentPriceColor};">${coinDetails.current_price}</span></p>
+                        <p><b>Indian Price:</b> ₹${(coinDetails.current_price * 83.45).toFixed(2)}</p>
+                        <p><b>High in 24H:</b> $${coinDetails.high_24h}</p>
+                        <p><b>Low in 24H:</b> $${coinDetails.low_24h}</p>
+                        <p><b>Price Change in 24H:</b> ${coinDetails.price_change_24h}</p>
+                        <p><b>Market Cap Change:</b> ${coinDetails.market_cap_change_24h}</p>
+                        <p><b>Circulating Supply:</b> ${coinDetails.circulating_supply}</p>
+                        <p><b>Total Supply:</b> ${coinDetails.total_supply}</p>
+                        <p><b>Max Supply:</b> ${coinDetails.max_supply}</p>
+                        <p><b>Last Updated:</b> ${coinDetails.last_updated}</p>
+                    </div>
+                `;
+            } else {
+                coinDetailsContainer.textContent = "Coin details not found.";
+            }
+        });
+    </script>
+</body>
+</html>

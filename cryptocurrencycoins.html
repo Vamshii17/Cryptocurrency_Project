@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./cryptocurrency.css">
+    <title>Xcryptocurrency</title>
+    <link rel="icon" type="image/x-icon" href="./images/bitcoin.png">
+</head>
+<body>
+    <header>
+        <nav>
+            <img src="./images/bitcoin.png" class="a1">
+            <span class="a2">Xcryptocurrency</span>
+            <a href="./cryptocurrencyhome.html" class="a3">Home</a>
+            <a href="#coins" class="a4">Coins</a>
+        </nav>
+    </header>
+    <button class="back_button" onclick="history.back()">Back</button>
+
+    <div id="currency-selector">
+        <button class="currency-button" data-currency="usd">USD</button>
+        <button class="currency-button" data-currency="inr">INR</button>
+        <button class="currency-button" data-currency="cad">CAD</button>
+        <button class="currency-button" data-currency="eur">EUR</button> 
+    </div>
+
+    <div id="coin">
+        <div id="coin_item"></div>
+    </div>
+    <div id="page">
+        <button id="prev_page">Previous</button>
+        <button id="next_page">Next</button>
+    </div>
+    <footer>
+        <h3 class="footer-content"><u>About Us</u></h3>   
+        <p class="footer-content">We are the best crypto trading service provider in india, we prove our guidance at a very reasonable price.</p>
+        <p class="footer-content">© 2024 xcryptocurrency, Inc. All rights reserved.</p>
+    </footer>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        const dataContainer = document.getElementById("coin");
+        const prevButton = document.getElementById("prev_page");
+        const nextButton = document.getElementById("next_page");
+        const currencyButtons = document.querySelectorAll(".currency-button");
+        const itemsPerPage = 9; 
+        let currentPage = 1;
+        let data;
+        let currentCurrency = 'usd';
+
+        function fetchDataAndDisplay() {
+          fetch(
+            `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${currentCurrency}`
+          )
+            .then((response) => response.json())
+            .then((responseData) => {
+              data = responseData; 
+              DisplayData(); 
+              updatePageButtons(); 
+            })
+
+            .catch((error) => {
+              console.error("Error fetching data:", error);
+            });
+        }
+
+        function DisplayData() {
+          const startIndex = (currentPage - 1) * itemsPerPage;
+          const endIndex = currentPage * itemsPerPage;
+          const slicedData = data.slice(startIndex, endIndex);
+
+          const container = document.createElement("div");
+          container.setAttribute("id", "coin_item");
+
+          slicedData.forEach((coin) => {
+            const coinElement = document.createElement("div");
+            coinElement.setAttribute("class", "coinElement"); 
+            coinElement.style.border = "1px solid lightgray"
+            coinElement.style.marginBottom = "10px";
+            coinElement.style.padding = "10px";
+
+            coinElement.addEventListener('click', () => {
+              showCoinDetails(coin);
+            });
+
+            const imageElement = document.createElement("img");
+            imageElement.setAttribute("id","image")
+            imageElement.src = coin.image;
+            imageElement.style.width = "80px";
+
+            const nameElement = document.createElement("h2");
+            nameElement.textContent = coin.name;
+
+            const priceElement = document.createElement("p");
+            priceElement.textContent = `Price: ${formatCurrency(coin.current_price, currentCurrency)}`;
+            priceElement.style.fontWeight="bold";
+            priceElement.style.fontSize="18px";
+
+            coinElement.appendChild(imageElement);
+            coinElement.appendChild(nameElement);
+            coinElement.appendChild(priceElement);
+
+            container.appendChild(coinElement);
+          });
+
+           dataContainer.innerHTML = "";
+           dataContainer.appendChild(container);
+        }
+
+        function updatePageButtons() {
+            prevButton.disabled = currentPage === 1; 
+            nextButton.disabled = currentPage === Math.ceil(data.length / itemsPerPage); 
+        }
+
+        prevButton.addEventListener("click", () => {
+          prevButton.style.backgroundColor = "whitesmoke";
+          prevButton.style.color = "black";
+          if (currentPage > 1) {
+            currentPage--;
+            DisplayData();
+            updatePageButtons();
+          }
+        });
+
+        nextButton.addEventListener("click", () => {
+          nextButton.style.backgroundColor = "whitesmoke";
+          nextButton.style.color = "black";
+          if (currentPage < Math.ceil(data.length / itemsPerPage)) {
+            currentPage++;
+            DisplayData();
+            updatePageButtons();
+          }
+        });
+
+        currencyButtons.forEach(button => {
+          button.addEventListener('click', (event) => {
+            currentCurrency = event.target.getAttribute('data-currency');
+            currentPage = 1; // Reset to the first page
+            fetchDataAndDisplay();
+          });
+        });
+
+        function formatCurrency(value, currency) {
+          const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: currency.toUpperCase(),
+          });
+          return formatter.format(value);
+        }
+
+        fetchDataAndDisplay();
+      });
+
+      function showCoinDetails(coin) {
+        window.localStorage.setItem("coinDetails", JSON.stringify(coin));
+        window.location.href = "./cryptocurrencycoindetails.html";
+      }
+    </script>
+</body>
+</html>
